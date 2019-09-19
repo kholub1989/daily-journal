@@ -14,8 +14,6 @@ const app = express();
 
 app.set('view engine', 'ejs');
 
-let posts = [];
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
@@ -40,9 +38,11 @@ const Post = mongoose.model('Post', postsSchema);
 
 
 app.get('/', function(req, res){
+  Post.find({}, function(err, posts){
   res.render('home', {
-    startingContent: homeStartingContent, 
-    posts: posts });
+      startingContent: homeStartingContent, 
+      posts: posts });
+  });
 });
 
 app.get('/about', function(req, res){
@@ -58,19 +58,11 @@ app.get('/compose', function(req, res){
 })
 
 app.post('/compose', function(req, res){
-
   const post = new Post ({
     title: req.body.postTitle,
     content: req.body.postText
   });
-
   post.save();
-
-  // const post = {
-  //   title: req.body.postTitle,
-  //   content: req.body.postText
-  // };
-  posts.push(post);
   res.redirect('/');
 });
 

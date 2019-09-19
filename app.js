@@ -2,6 +2,7 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 const ejs = require("ejs");
 const _ = require('lodash');
 
@@ -17,6 +18,25 @@ let posts = [];
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+
+mongoose.connect('mongodb://localhost/blogDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true});
+
+const postsSchema = new mongoose.Schema({
+  title: String,
+  content: String
+});
+
+const Post = mongoose.model('Post', postsSchema);
+
+// Post.insertMany(Post1, function(err){
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log('Seccessfuly add');
+//   }
+// });
 
 
 app.get('/', function(req, res){
@@ -38,10 +58,18 @@ app.get('/compose', function(req, res){
 })
 
 app.post('/compose', function(req, res){
-  const post = {
+
+  const post = new Post ({
     title: req.body.postTitle,
     content: req.body.postText
-  };
+  });
+
+  post.save();
+
+  // const post = {
+  //   title: req.body.postTitle,
+  //   content: req.body.postText
+  // };
   posts.push(post);
   res.redirect('/');
 });
